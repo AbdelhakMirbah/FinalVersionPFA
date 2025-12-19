@@ -49,8 +49,8 @@ public class FraudController {
                             0.0 // newBalanceDest (pas disponible dans FraudRequest)
                     );
 
-                    // Déterminer le niveau de risque
-                    String risk = score > 0.5 ? "HIGH" : "LOW";
+                    // Déterminer le niveau de risque (seuil abaissé pour démo)
+                    String risk = score > 0.0001 ? "HIGH" : "LOW";
 
                     log.info("Fraud score: {}, Risk: {}", score, risk);
 

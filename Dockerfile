@@ -1,23 +1,20 @@
-FROM python:3.11-slim
-
+# Stage 1: Build
+FROM maven:3.9.6-eclipse-temurin-17 AS build
 WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+COPY .mvn ./.mvn
+COPY mvnw .
+RUN chmod +x mvnw
+# Run build, skipping tests to be faster (tests were verified locally)
+RUN ./mvnw clean package -DskipTests
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    gcc \
-    postgresql-client \
-    && rm -rf /var/lib/apt/lists/*
+# Stage 2: Runtime
+FROM eclipse-temurin:17-jre-jammy
+WORKDIR /app
+COPY --from=build /app/target/fraud-detection-1.0.0.jar app.jar
+# Required for ONNX model loading
+COPY src/main/resources/fraud_model.onnx src/main/resources/fraud_model.onnx
 
-# Copy requirements if they exist
-COPY requirements.txt* ./
-
-# Install Python dependencies if requirements.txt exists
-RUN if [ -f requirements.txt ]; then pip install --no-cache-dir -r requirements.txt; fi
-
-# Copy application code
-COPY . .
-
-# Default command (can be overridden in docker-compose.yml)
-CMD ["python", "-m", "http.server", "8000"]
-
-
+EXPOSE 8081
+ENTRYPOINT ["java", "-jar", "app.jar"]

@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fraud Detection Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result.high-risk {
+            background: #fee;
+            border: 2px solid #f44336;
+        }
+
+        .result.low-risk {
+            background: #efe;
+            border: 2px solid #4caf50;
+        }
+
+        .result h3 {
+            margin-bottom: 10px;
+        }
+
+        .result.high-risk h3 {
+            color: #c62828;
+        }
+
+        .result.low-risk h3 {
+            color: #2e7d32;
+        }
+
+        .score-display {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .history-table th,
+        .history-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .history-table th {
+            background: #f5f5f5;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .history-table tr:hover {
+            background: #f9f9f9;
+        }
+
+        .badge {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge.high {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .badge.low {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ Fraud Detection System</h1>
+            <p>Real-time ML-powered fraud detection with ONNX</p>
+        </div>
+
+        <div class="dashboard">
+            <!-- Fraud Check Form -->
+            <div class="card">
+                <h2>🔍 Check Transaction</h2>
+                <form id="fraudForm">
+                    <div class="form-group">
+                        <label for="amount">Amount ($)</label>
+                        <input type="number" id="amount" step="0.01" required placeholder="e.g., 9000.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="oldBalance">Old Balance ($)</label>
+                        <input type="number" id="oldBalance" step="0.01" required placeholder="e.g., 10000.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="newBalance">New Balance ($)</label>
+                        <input type="number" id="newBalance" step="0.01" required placeholder="e.g., 1000.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="ip">IP Address</label>
+                        <input type="text" id="ip" required placeholder="e.g., 192.168.1.1">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" required placeholder="e.g., user@example.com">
+                    </div>
+                    <button type="submit" class="btn">Analyze Transaction</button>
+                </form>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 10px; color: #667eea;">Analyzing...</p>
+                </div>
+
+                <div class="result" id="result">
+                    <h3 id="resultTitle"></h3>
+                    <div class="score-display" id="scoreDisplay"></div>
+                    <p id="resultMessage"></p>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="card">
+                <h2>📊 Statistics</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total Checks</h3>
+                        <div class="value" id="totalChecks">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>High Risk</h3>
+                        <div class="value" id="highRisk">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Low Risk</h3>
+                        <div class="value" id="lowRisk">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Avg Score</h3>
+                        <div class="value" id="avgScore">0.00%</div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 20px; color: #667eea;">Recent Checks</h3>
+                <div style="overflow-x: auto;">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Amount</th>
+                                <th>Score</th>
+                                <th>Risk</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyBody">
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: #999;">No checks yet</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8081/api/v1/fraud/check';
+        let history = [];
+
+        // Load history from localStorage
+        function loadHistory() {
+            const saved = localStorage.getItem('fraudHistory');
+            if (saved) {
+                history = JSON.parse(saved);
+                updateStatistics();
+                updateHistoryTable();
+            }
+        }
+
+        // Save history to localStorage
+        function saveHistory() {
+            localStorage.setItem('fraudHistory', JSON.stringify(history));
+        }
+
+        // Handle form submission
+        document.getElementById('fraudForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const data = {
+                amount: parseFloat(document.getElementById('amount').value),
+                oldBalance: parseFloat(document.getElementById('oldBalance').value),
+                newBalance: parseFloat(document.getElementById('newBalance').value),
+                ip: document.getElementById('ip').value,
+                email: document.getElementById('email').value
+            };
+
+            // Show loading
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('result').classList.remove('show');
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    throw new Error('API request failed');
+                }
+
+                const result = await response.json();
+
+                // Add to history
+                history.unshift({
+                    ...data,
+                    score: result.score,
+                    risk: result.risk,
+                    timestamp: new Date().toISOString()
+                });
+
+                // Keep only last 10
+                if (history.length > 10) {
+                    history = history.slice(0, 10);
+                }
+
+                saveHistory();
+                displayResult(result, data.amount);
+                updateStatistics();
+                updateHistoryTable();
+
+            } catch (error) {
+                alert('Error: ' + error.message + '\n\nMake sure the API is running on http://localhost:8081');
+            } finally {
+                document.getElementById('loading').classList.remove('show');
+            }
+        });
+
+        // Display result
+        function displayResult(result, amount) {
+            const resultDiv = document.getElementById('result');
+            const isHighRisk = result.risk === 'HIGH';
+
+            resultDiv.className = 'result show ' + (isHighRisk ? 'high-risk' : 'low-risk');
+            
+            document.getElementById('resultTitle').textContent = 
+                isHighRisk ? '⚠️ High Risk Detected!' : '✅ Low Risk Transaction';
+            
+            document.getElementById('scoreDisplay').textContent = 
+                `Fraud Score: ${(result.score * 100).toFixed(4)}%`;
+            
+            document.getElementById('resultMessage').textContent = 
+                isHighRisk 
+                    ? `This transaction of $${amount.toFixed(2)} shows suspicious patterns.`
+                    : `This transaction of $${amount.toFixed(2)} appears legitimate.`;
+        }
+
+        // Update statistics
+        function updateStatistics() {
+            const total = history.length;
+            const high = history.filter(h => h.risk === 'HIGH').length;
+            const low = history.filter(h => h.risk === 'LOW').length;
+            const avgScore = total > 0 
+                ? (history.reduce((sum, h) => sum + h.score, 0) / total * 100).toFixed(2)
+                : '0.00';
+
+            document.getElementById('totalChecks').textContent = total;
+            document.getElementById('highRisk').textContent = high;
+            document.getElementById('lowRisk').textContent = low;
+            document.getElementById('avgScore').textContent = avgScore + '%';
+        }
+
+        // Update history table
+        function updateHistoryTable() {
+            const tbody = document.getElementById('historyBody');
+            
+            if (history.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #999;">No checks yet</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = history.map(item => `
+                <tr>
+                    <td>$${item.amount.toFixed(2)}</td>
+                    <td>${(item.score * 100).toFixed(4)}%</td>
+                    <td><span class="badge ${item.risk.toLowerCase()}">${item.risk}</span></td>
+                    <td>${new Date(item.timestamp).toLocaleTimeString()}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Load history on page load
+        loadHistory();
+    </script>
+</body>
+</html>

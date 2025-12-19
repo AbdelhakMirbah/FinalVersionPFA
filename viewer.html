@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fraud Detection - Data Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: transform 0.2s;
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .data-table th {
+            background: #f5f5f5;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .data-table tr:hover {
+            background: #f9f9f9;
+        }
+
+        .badge {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge.high {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .badge.low {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-box h3 {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .stat-box .value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .timestamp {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .data-table {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Fraud Detection Data Viewer</h1>
+            <p>Real-time view of fraud checks stored in PostgreSQL</p>
+        </div>
+
+        <!-- Statistics -->
+        <div class="card">
+            <h2>📈 Statistics</h2>
+            <div class="stats-row">
+                <div class="stat-box">
+                    <h3>Total Records</h3>
+                    <div class="value" id="totalRecords">0</div>
+                </div>
+                <div class="stat-box">
+                    <h3>High Risk</h3>
+                    <div class="value" id="highRiskCount">0</div>
+                </div>
+                <div class="stat-box">
+                    <h3>Low Risk</h3>
+                    <div class="value" id="lowRiskCount">0</div>
+                </div>
+                <div class="stat-box">
+                    <h3>Avg Score</h3>
+                    <div class="value" id="avgScore">0.00%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Database Records -->
+        <div class="card">
+            <h2>
+                💾 Database Records (PostgreSQL)
+                <button class="refresh-btn" onclick="loadDatabaseRecords()">🔄 Refresh</button>
+            </h2>
+            <div id="dbLoading" class="loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>Loading records...</p>
+            </div>
+            <div id="dbContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8081/api/v1';
+
+        // Load database records from Spring Boot API
+        async function loadDatabaseRecords() {
+            const dbLoading = document.getElementById('dbLoading');
+            const dbContent = document.getElementById('dbContent');
+
+            dbLoading.style.display = 'block';
+            dbContent.innerHTML = '';
+
+            try {
+                // Fetch records from Spring Boot API
+                const response = await fetch(`${API_BASE_URL}/records`);
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch records');
+                }
+
+                const records = await response.json();
+
+                if (records.length === 0) {
+                    dbContent.innerHTML = `
+                        <div class="empty-state">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/>
+                            </svg>
+                            <h3>No records found</h3>
+                            <p>Submit a fraud check using the dashboard to see data here</p>
+                        </div>
+                    `;
+                } else {
+                    await updateStatistics();
+                    displayRecords(records);
+                }
+            } catch (error) {
+                dbContent.innerHTML = `
+                    <div class="empty-state">
+                        <h3>⚠️ Connection Error</h3>
+                        <p>Make sure the Spring Boot application is running on port 8081</p>
+                        <p style="margin-top: 10px; font-size: 0.9rem; color: #666;">
+                            Error: ${error.message}
+                        </p>
+                        <button class="refresh-btn" onclick="loadDatabaseRecords()" style="margin-top: 15px;">
+                            🔄 Retry
+                        </button>
+                    </div>
+                `;
+            } finally {
+                dbLoading.style.display = 'none';
+            }
+        }
+
+        async function updateStatistics() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/records/stats`);
+                const stats = await response.json();
+
+                document.getElementById('totalRecords').textContent = stats.total || 0;
+                document.getElementById('highRiskCount').textContent = stats.highRisk || 0;
+                document.getElementById('lowRiskCount').textContent = stats.lowRisk || 0;
+                document.getElementById('avgScore').textContent =
+                    ((stats.avgScore || 0) * 100).toFixed(2) + '%';
+            } catch (error) {
+                console.error('Failed to load statistics:', error);
+            }
+        }
+
+        function displayRecords(records) {
+            const dbContent = document.getElementById('dbContent');
+
+            const html = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Amount</th>
+                            <th>Score</th>
+                            <th>Risk</th>
+                            <th>Created At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${records.map(record => `
+                            <tr>
+                                <td>#${record.id}</td>
+                                <td>$${record.amount.toFixed(2)}</td>
+                                <td>${(record.score * 100).toFixed(4)}%</td>
+                                <td><span class="badge ${record.risk.toLowerCase()}">${record.risk}</span></td>
+                                <td class="timestamp">${new Date(record.createdAt).toLocaleString()}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            dbContent.innerHTML = html;
+        }
+
+        // Auto-refresh every 5 seconds
+        setInterval(loadDatabaseRecords, 5000);
+
+        // Load on page load
+        loadDatabaseRecords();
+    </script>
+</body>
+
+</html>
