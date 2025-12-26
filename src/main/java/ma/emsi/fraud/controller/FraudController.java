@@ -38,16 +38,18 @@ public class FraudController {
                     log.debug("Enrichment result: {}", enrichment);
 
                     // 2. Appel MlService (Sync) avec 6 features
-                    // type=0 (PAYMENT par défaut), amount, oldBalance, newBalance,
-                    // oldBalanceDest=0, newBalanceDest=0 (valeurs par défaut)
+                    // Defaults: type=0 (PAYMENT), dest balances = 0.0 if null
+                    int type = request.type() != null ? request.type() : 0;
+                    double oldBalanceDest = request.oldBalanceDest() != null ? request.oldBalanceDest() : 0.0;
+                    double newBalanceDest = request.newBalanceDest() != null ? request.newBalanceDest() : 0.0;
+
                     float score = mlService.predict(
-                            0, // type: PAYMENT
+                            type,
                             request.amount(),
                             request.oldBalance(),
                             request.newBalance(),
-                            0.0, // oldBalanceDest (pas disponible dans FraudRequest)
-                            0.0 // newBalanceDest (pas disponible dans FraudRequest)
-                    );
+                            oldBalanceDest,
+                            newBalanceDest);
 
                     // Déterminer le niveau de risque (seuil abaissé pour démo)
                     String risk = score > 0.0001 ? "HIGH" : "LOW";

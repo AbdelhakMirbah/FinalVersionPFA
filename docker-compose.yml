@@ -108,7 +108,7 @@ services:
     container_name: kafka-ui
     restart: always
     ports:
-      - "8083:8080"
+      - "8090:8080"
     environment:
       KAFKA_CLUSTERS_0_NAME: fraud-detection-cluster
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29093

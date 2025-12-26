@@ -19,7 +19,7 @@ public class AuditConsumer {
      * et les sauvegarde dans PostgreSQL
      */
     @KafkaListener(topics = "fraud-checks", groupId = "fraud-consumer-group")
-    public void consume(FraudCheck fraudCheck) {
+    public void consume(@org.springframework.lang.NonNull FraudCheck fraudCheck) {
         log.info("Received fraud check from Kafka: {}", fraudCheck);
 
         try {

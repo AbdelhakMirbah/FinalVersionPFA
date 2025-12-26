@@ -18,16 +18,14 @@ public class FraudDetectionApplication {
         return args -> {
             System.out.println("\n========== TEST DU MODÈLE ONNX ==========");
             try {
-                // Test avec des valeurs simples
-                float score = mlService.predict(
-                        0, // type: PAYMENT
-                        9000.0, // amount
-                        10000.0, // oldBalanceOrg
-                        1000.0, // newBalanceOrig
-                        0.0, // oldBalanceDest
-                        0.0 // newBalanceDest
-                );
-                System.out.println("✅ Score obtenu : " + score);
+                // Test 1: Cas Normal (PAYMENT, 9000, score attendu ~0)
+                float scoreNormal = mlService.predict(0, 9000.0, 10000.0, 1000.0, 0.0, 0.0);
+                System.out.println("✅ Score Normal (Payment) : " + scoreNormal);
+
+                // Test 2: Cas Fraude typique (TRANSFER, compte vidé, gros montant)
+                // Type 1 = TRANSFER
+                float scoreFraud = mlService.predict(1, 1000000.0, 1000000.0, 0.0, 0.0, 0.0);
+                System.out.println("🚨 Score Fraude (Transfer) : " + scoreFraud);
             } catch (Exception e) {
                 System.out.println("❌ Erreur lors du test : " + e.getMessage());
                 e.printStackTrace();
