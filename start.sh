@@ -3,20 +3,45 @@
 # Définition des couleurs
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
+RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 echo -e "${BLUE}=== Démarrage du Système de Détection de Fraude ===${NC}"
 
-# 1. Vérification des conteneurs Docker
+# 1. Vérification et démarrage des conteneurs Docker
 echo -e "\n${BLUE}[1/3] Vérification de l'infrastructure Docker...${NC}"
 if [ "$(docker ps -q -f name=postgres)" ]; then
     echo -e "${GREEN}✅ PostgreSQL est en ligne.${NC}"
 else
     echo -e "${BLUE}🚀 Démarrage de Docker Compose...${NC}"
     docker-compose up -d
-    echo -e "${BLUE}⏳ Attente de l'initialisation des services (10s)...${NC}"
-    sleep 10
 fi
+
+# Attendre que Kafka soit healthy (critique pour éviter les erreurs de connexion)
+echo -e "${BLUE}⏳ Attente de la disponibilité de Kafka...${NC}"
+for i in {1..30}; do
+    KAFKA_STATUS=$(docker inspect kafka --format='{{.State.Health.Status}}' 2>/dev/null)
+    if [ "$KAFKA_STATUS" = "healthy" ]; then
+        echo -e "${GREEN}✅ Kafka est prêt!${NC}"
+        break
+    fi
+    if [ $i -eq 30 ]; then
+        echo -e "${RED}⚠️  Timeout: Kafka n'est pas devenu healthy après 60s${NC}"
+        exit 1
+    fi
+    sleep 2
+done
+
+# Attendre que PostgreSQL soit healthy
+echo -e "${BLUE}⏳ Vérification de PostgreSQL...${NC}"
+for i in {1..15}; do
+    POSTGRES_STATUS=$(docker inspect postgres --format='{{.State.Health.Status}}' 2>/dev/null)
+    if [ "$POSTGRES_STATUS" = "healthy" ]; then
+        echo -e "${GREEN}✅ PostgreSQL est prêt!${NC}"
+        break
+    fi
+    sleep 1
+done
 
 # 2. Démarrage du Backend
 echo -e "\n${BLUE}[2/3] Démarrage du Backend (Spring Boot)...${NC}"
