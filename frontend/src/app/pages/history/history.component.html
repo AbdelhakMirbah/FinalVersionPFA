@@ -41,6 +41,7 @@
                         <th scope="col" class="px-6 py-3">Score</th>
                         <th scope="col" class="px-6 py-3">Risk Level</th>
                         <th scope="col" class="px-6 py-3">Result Date</th>
+                        <th scope="col" class="px-6 py-3 text-right">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -62,14 +63,134 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 text-gray-400">{{ record.createdAt | date:'dd/MM/yyyy HH:mm:ss' }}</td>
+                        <td class="px-6 py-4 text-right">
+                            <button (click)="viewDetails(record)"
+                                class="text-blue-400 hover:text-blue-300 bg-blue-900/20 hover:bg-blue-900/40 px-3 py-1.5 rounded-md text-xs font-medium transition-colors">
+                                View Details
+                            </button>
+                        </td>
                     </tr>
                     <tr *ngIf="filteredRecords.length === 0">
-                        <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                        <td colspan="6" class="px-6 py-8 text-center text-gray-500">
                             No transactions found matching your criteria.
                         </td>
                     </tr>
                 </tbody>
             </table>
+        </div>
+    </div>
+
+    <!-- Details Modal -->
+    <div *ngIf="selectedTransaction"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+        <div
+            class="bg-gray-800 rounded-2xl shadow-2xl border border-gray-700 w-full max-w-2xl overflow-hidden transform transition-all">
+            <!-- Header -->
+            <div class="px-6 py-4 border-b border-gray-700 flex justify-between items-center bg-gray-900/50">
+                <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                    <span class="text-blue-500">#{{ selectedTransaction.id }}</span> Transaction Details
+                </h3>
+                <button (click)="closeDetails()" class="text-gray-400 hover:text-white transition-colors">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Content -->
+            <div class="p-6 grid grid-cols-2 gap-6">
+                <!-- Left Column -->
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</label>
+                        <p class="text-2xl font-bold text-white">{{ selectedTransaction.amount | number:'1.2-2' }} $</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider">Date</label>
+                        <p class="text-gray-300 font-mono">{{ selectedTransaction.createdAt | date:'dd/MM/yyyy HH:mm:ss'
+                            }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider">Transaction
+                            Type</label>
+                        <p class="text-gray-300">
+                            <span *ngIf="selectedTransaction.transactionType === 0">Payment</span>
+                            <span *ngIf="selectedTransaction.transactionType === 1">Transfer</span>
+                            <span *ngIf="selectedTransaction.transactionType === 2">Cash Out</span>
+                            <span *ngIf="selectedTransaction.transactionType === 3">Debit</span>
+                            <span *ngIf="selectedTransaction.transactionType === 4">Cash In</span>
+                            (Type {{ selectedTransaction.transactionType }})
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Right Column (Risk) -->
+                <div
+                    class="bg-gray-900/50 rounded-xl p-4 border border-gray-700 flex flex-col justify-center items-center text-center">
+                    <div class="text-4xl font-bold mb-1"
+                        [ngClass]="selectedTransaction.risk === 'HIGH' ? 'text-red-500' : 'text-green-500'">
+                        {{ selectedTransaction.risk }}
+                    </div>
+                    <div class="text-sm text-gray-400">Fraud Score: <span class="text-white">{{
+                            selectedTransaction.score | number:'1.4-4' }}</span></div>
+                </div>
+
+                <!-- Full Width Details -->
+                <div class="col-span-2 pt-4 border-t border-gray-700 grid grid-cols-2 gap-4">
+                    <!-- Source Account -->
+                    <div class="bg-gray-900/30 p-3 rounded-lg border border-gray-700">
+                        <h4 class="text-sm font-semibold text-blue-400 mb-2">Origin Account</h4>
+                        <div class="text-xs text-gray-400 flex justify-between">
+                            <span>Old Balance:</span>
+                            <span class="text-white font-mono">{{ selectedTransaction.oldBalance | number:'1.2-2' }}
+                                $</span>
+                        </div>
+                        <div class="text-xs text-gray-400 flex justify-between mt-1">
+                            <span>New Balance:</span>
+                            <span class="text-white font-mono">{{ selectedTransaction.newBalance | number:'1.2-2' }}
+                                $</span>
+                        </div>
+                    </div>
+
+                    <!-- Dest Account -->
+                    <div class="bg-gray-900/30 p-3 rounded-lg border border-gray-700">
+                        <h4 class="text-sm font-semibold text-purple-400 mb-2">Destination Account</h4>
+                        <div class="text-xs text-gray-400 flex justify-between">
+                            <span>Old Balance:</span>
+                            <span class="text-white font-mono">{{ selectedTransaction.oldBalanceDest | number:'1.2-2' }}
+                                $</span>
+                        </div>
+                        <div class="text-xs text-gray-400 flex justify-between mt-1">
+                            <span>New Balance:</span>
+                            <span class="text-white font-mono">{{ selectedTransaction.newBalanceDest | number:'1.2-2' }}
+                                $</span>
+                        </div>
+                    </div>
+
+                    <!-- Meta Data -->
+                    <div class="col-span-2 flex gap-4 mt-2">
+                        <div class="flex-1 bg-gray-900/30 p-2 rounded border border-gray-700">
+                            <label class="block text-[10px] text-gray-500 uppercase">IP Address</label>
+                            <span class="text-sm font-mono text-cyan-300">{{ selectedTransaction.ipAddress || 'N/A'
+                                }}</span>
+                        </div>
+                        <div class="flex-1 bg-gray-900/30 p-2 rounded border border-gray-700">
+                            <label class="block text-[10px] text-gray-500 uppercase">Email</label>
+                            <span class="text-sm font-mono text-yellow-300">{{ selectedTransaction.email || 'N/A'
+                                }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="px-6 py-4 bg-gray-900 flex justify-end">
+                <button (click)="closeDetails()"
+                    class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                    Close
+                </button>
+            </div>
         </div>
     </div>
 </div>

@@ -48,8 +48,10 @@ export class HistoryComponent implements OnInit {
 
   exportCSV() {
     const csvContent = "data:text/csv;charset=utf-8,"
-      + "ID,Amount,Score,Risk,Date\n"
-      + this.filteredRecords.map(e => `${e.id},${e.amount},${e.score},${e.risk},${e.createdAt}`).join("\n");
+      + "ID,Amount,Score,Risk,Date,Type,OldBalance,NewBalance,IP,Email\n"
+      + this.filteredRecords.map(e =>
+        `${e.id},${e.amount},${e.score},${e.risk},${e.createdAt},${e.transactionType},${e.oldBalance},${e.newBalance},${e.ipAddress},${e.email}`
+      ).join("\n");
 
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
@@ -58,5 +60,16 @@ export class HistoryComponent implements OnInit {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  }
+
+  // Modal logic
+  selectedTransaction: FraudCheck | null = null;
+
+  viewDetails(record: FraudCheck) {
+    this.selectedTransaction = record;
+  }
+
+  closeDetails() {
+    this.selectedTransaction = null;
   }
 }

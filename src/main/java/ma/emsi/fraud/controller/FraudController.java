@@ -67,6 +67,13 @@ public class FraudController {
                         fraudCheck.setAmount(request.amount());
                         fraudCheck.setScore(score);
                         fraudCheck.setRisk(risk);
+                        fraudCheck.setTransactionType(type);
+                        fraudCheck.setOldBalance(request.oldBalance());
+                        fraudCheck.setNewBalance(request.newBalance());
+                        fraudCheck.setOldBalanceDest(oldBalanceDest);
+                        fraudCheck.setNewBalanceDest(newBalanceDest);
+                        fraudCheck.setIpAddress(request.ip());
+                        fraudCheck.setEmail(request.email());
                         fraudCheck.setCreatedAt(java.time.LocalDateTime.now()); // Set date immediately
 
                         kafkaTemplate.send(KAFKA_TOPIC, fraudCheck);

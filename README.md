@@ -1,100 +1,64 @@
-# 📘 Fraud Detection System - Quick Start Guide
+# Système de Détection de Fraude en Temps Réel 🛡️
 
-This guide provides all the necessary information to run, access, and test the Fraud Detection System.
-
-## 🚀 1. How to Run the Application
-
-The system requires two parts:
-1.  **Infrastructure (Docker):** Runs the Database, Kafka, and Management UIs.
-2.  **Application (Spring Boot):** Runs the logical backend.
-
-### Step 1: Start Infrastructure
-Open a terminal and run:
-```bash
-docker-compose up -d zookeeper kafka postgres adminer kafka-ui
-```
-*Note: We exclude `fraud-service` from docker to run it locally for development.*
-
-### Step 2: Start Spring Boot Backend
-Open a **new** terminal window and run:
-```bash
-./mvnw clean spring-boot:run
-```
-*Wait for the logs to show "Started FraudDetectionApplication".*
+Ce projet est une solution complète (Full-Stack) pour analyser, détecter et visualiser les tentatives de fraude bancaire en temps réel.
+Il utilise **Spring Boot 3 (Reactive/WebFlux)** pour le backend, **Angular 17** pour le frontend, **Apache Kafka** pour la messagerie asynchrone, et **ONNX/DJL** pour l'intelligence artificielle embarquée.
 
 ---
 
-## 🌐 2. Access Points & Ports
+## 🚀 Démarrage Rapide (1-Click)
 
-| Service | URL / Address | Description |
-| :--- | :--- | :--- |
-| **Backend API** | `http://localhost:8081` | The main REST API. |
-| **Data Viewer** | `viewer.html` | Open this file in your browser to see real-time fraud data. |
-| **Kafka UI** | `http://localhost:8090` | Web interface to monitor Kafka topics and consumers. |
-| **Adminer (DB)** | `http://localhost:8082` | Web interface to manage the PostgreSQL database. |
-| **PostgreSQL** | `localhost:5433` | Database direct connection port. |
-| **Kafka Broker** | `localhost:9095` | Kafka direct connection port. |
+Le projet contient des scripts automatisés pour faciliter le démarrage.
+
+### Prérequis
+- Java 17+
+- Node.js 18+ & NPM
+- Docker & Docker Compose
+
+### 1. Démarrer tout le système
+```bash
+./start.sh
+```
+Ce script va :
+1. Lancer les conteneurs Docker (PostgreSQL, Kafka, Zookeeper, Adminer, Kafka UI).
+2. Démarrer le Backend API (Port 8081).
+3. Démarrer le Frontend Angular (Port 4200).
+
+### 2. Arrêter le système
+```bash
+./stop.sh
+```
+Cela arrête proprement les application Java/Node et éteint les conteneurs Docker.
 
 ---
 
-## 🧪 3. How to Test & Check
+## 📊 Accès aux Interfaces
 
-### A. Automatic Testing Script
-We have provided a script to run various fraud scenarios automatically.
-run:
+| Service | URL | Description |
+|---------|-----|-------------|
+| **Frontend** | [http://localhost:4200](http://localhost:4200) | Tableau de bord Admin (Live Feed, Graphiques, Historique) |
+| **Backend API** | [http://localhost:8081](http://localhost:8081) | API REST Reactive |
+| **Adminer** | [http://localhost:8082](http://localhost:8082) | Interface Web pour PostgreSQL |
+| **Kafka UI** | [http://localhost:8090](http://localhost:8090) | Interface Web pour le cluster Kafka |
+
+---
+
+## 🧪 Tests & Simulation
+
+Pour générer du trafic et voir le Dashboard s'animer :
+
 ```bash
-chmod +x test_api.sh
-./test_api.sh
+./test.sh
 ```
 
-### B. Manual API Check (Curl)
-You can manually send a transaction to check for fraud:
-```bash
-curl -X POST http://localhost:8081/api/v1/fraud/check \
-  -H "Content-Type: application/json" \
-  -d '{
-    "amount": 500000.0,
-    "oldBalance": 500000.0,
-    "newBalance": 0.0,
-    "type": 2,
-    "oldBalanceDest": 0.0,
-    "newBalanceDest": 500000.0,
-    "ip": "5.6.7.8",
-    "email": "test@example.com"
-  }'
-```
+Ce script simule plusieurs scénarios (Paiements normaux, Gros transferts, Cash-out suspect).
 
 ---
 
-## 🐘 4. Database Access (PostgreSQL)
+## 📑 Documentation
 
-You can access the database using **Adminer** (`http://localhost:8082`) or any DB Client (DBeaver, IntelliJ).
-
-*   **System:** PostgreSQL
-*   **Server:** `postgres` (if inside docker network) or `localhost` (if local)
-*   **Port:** `5433` (External access)
-*   **Username:** `postgres`
-*   **Password:** `password`
-*   **Database:** `fraud_db`
-*   **Main Table:** `fraud_checks` (Stores all checked transactions)
+Pour une analyse détaillée de l'architecture, de la stack technique et des choix d'implémentation, consultez le [Rapport Complet (report.md)](report.md).
 
 ---
 
-## 📨 5. Kafka Consumer Access
-
-You can monitor the messages flowing through the system using **Kafka UI** (`http://localhost:8090`).
-
-1.  Open `http://localhost:8090` in your browser.
-2.  Go to **Topics** -> `fraud-checks`.
-3.  Click on the **Messages** tab to see real-time JSON messages sent by the application.
-4.  Go to **Consumers** to see the `fraud-consumer-group` status.
-
----
-
-## 🛑 Stopping the Application
-
-To stop the Spring Boot app, press `Ctrl+C` in its terminal.
-To stop the infrastructure, run:
-```bash
-docker-compose stop
-```
+**Auteur :** Abdelhak Mirbah
+**Date :** Décembre 2025

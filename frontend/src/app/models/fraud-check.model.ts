@@ -5,6 +5,15 @@ export class FraudCheck {
     risk: 'HIGH' | 'LOW';
     createdAt?: string;
 
+    // Detailed fields
+    transactionType?: number;
+    oldBalance?: number;
+    newBalance?: number;
+    oldBalanceDest?: number;
+    newBalanceDest?: number;
+    ipAddress?: string;
+    email?: string;
+
     constructor(amount: number, score: number, risk: 'HIGH' | 'LOW') {
         this.amount = amount;
         this.score = score;
