@@ -27,6 +27,7 @@ public class FraudCheck {
     @Column(nullable = false, length = 10)
     private String risk;
 
+    @com.fasterxml.jackson.annotation.JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 

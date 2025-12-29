@@ -22,14 +22,23 @@ Open a **new** terminal window and run:
 ```
 *Wait for the logs to show "Started FraudDetectionApplication".*
 
+### Step 3: Start Angular Frontend (New!)
+Open a **third** terminal window and run:
+```bash
+cd frontend
+npm start
+```
+*Wait for the compilation to finish, then open `http://localhost:4200` in your browser.*
+
 ---
 
 ## 🌐 2. Access Points & Ports
 
 | Service | URL / Address | Description |
 | :--- | :--- | :--- |
+| **Angular Dashboard** | `http://localhost:4200` | **(New)** The real-time interactive dashboard. |
 | **Backend API** | `http://localhost:8081` | The main REST API. |
-| **Data Viewer** | `viewer.html` | Open this file in your browser to see real-time fraud data. |
+| **Data Viewer** | `viewer.html` | (Legacy) Simple HTML file to view data. |
 | **Kafka UI** | `http://localhost:8090` | Web interface to monitor Kafka topics and consumers. |
 | **Adminer (DB)** | `http://localhost:8082` | Web interface to manage the PostgreSQL database. |
 | **PostgreSQL** | `localhost:5433` | Database direct connection port. |

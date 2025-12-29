@@ -7,6 +7,7 @@ import ma.emsi.fraud.model.FraudRequest;
 import ma.emsi.fraud.model.FraudResponse;
 import ma.emsi.fraud.service.EnrichmentService;
 import ma.emsi.fraud.service.MlService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -20,6 +21,9 @@ public class FraudController {
     private final EnrichmentService enrichmentService;
     private final MlService mlService;
     private final KafkaTemplate<String, FraudCheck> kafkaTemplate;
+
+    @Value("${fraud.risk.threshold:0.0001}")
+    private double riskThreshold;
 
     private static final String KAFKA_TOPIC = "fraud-checks";
 
@@ -51,23 +55,33 @@ public class FraudController {
                             oldBalanceDest,
                             newBalanceDest);
 
-                    // Déterminer le niveau de risque (seuil abaissé pour démo)
-                    String risk = score > 0.0001 ? "HIGH" : "LOW";
+                    // Déterminer le niveau de risque (seuil configurable)
+                    String risk = score > riskThreshold ? "HIGH" : "LOW";
 
                     log.info("Fraud score: {}, Risk: {}", score, risk);
 
-                    // 3. Envoi à Kafka (Fire-and-Forget)
-                    FraudCheck fraudCheck = new FraudCheck();
-                    fraudCheck.setAmount(request.amount());
-                    fraudCheck.setScore(score);
-                    fraudCheck.setRisk(risk);
+                    // 3. Envoi à Kafka (Fire-and-Forget) -> Wrapped in try-catch to ensure API
+                    // response even if Kafka fails
+                    try {
+                        FraudCheck fraudCheck = new FraudCheck();
+                        fraudCheck.setAmount(request.amount());
+                        fraudCheck.setScore(score);
+                        fraudCheck.setRisk(risk);
+                        fraudCheck.setCreatedAt(java.time.LocalDateTime.now()); // Set date immediately
 
-                    kafkaTemplate.send(KAFKA_TOPIC, fraudCheck);
-                    log.debug("Sent to Kafka topic: {}", KAFKA_TOPIC);
+                        kafkaTemplate.send(KAFKA_TOPIC, fraudCheck);
+                        log.debug("Sent to Kafka topic: {}", KAFKA_TOPIC);
+                    } catch (Exception kafkaError) {
+                        log.error("Failed to send to Kafka (Non-blocking): {}", kafkaError.getMessage(), kafkaError);
+                    }
 
                     // 4. Retour immédiat au client
                     return new FraudResponse(score, risk);
                 })
-                .doOnError(error -> log.error("Fraud check failed", error));
+                .doOnError(error -> log.error("Fraud check failed", error))
+                .onErrorResume(e -> {
+                    log.warn("Returning fallback response due to error: {}", e.getMessage());
+                    return Mono.just(new FraudResponse(-1.0f, "ERROR"));
+                });
     }
 }

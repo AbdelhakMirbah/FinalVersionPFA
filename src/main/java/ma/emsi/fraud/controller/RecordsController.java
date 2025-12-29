@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ma.emsi.fraud.model.FraudCheck;
 import ma.emsi.fraud.repository.FraudCheckRepository;
+import ma.emsi.fraud.service.FraudStreamService;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,6 +22,7 @@ import java.util.Map;
 public class RecordsController {
 
     private final FraudCheckRepository repository;
+    private final FraudStreamService streamService;
 
     /**
      * Get all fraud check records (last 50)
@@ -28,6 +31,15 @@ public class RecordsController {
     public Flux<FraudCheck> getAllRecords() {
         log.info("Fetching all fraud check records");
         return Flux.fromIterable(repository.findTop50ByOrderByCreatedAtDesc());
+    }
+
+    /**
+     * Stream real-time fraud checks (Server-Sent Events)
+     */
+    @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<FraudCheck> streamRecords() {
+        log.info("New client connected to fraud stream");
+        return streamService.getFraudStream();
     }
 
     /**
