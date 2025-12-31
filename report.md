@@ -1,7 +1,7 @@
 # Rapport de Projet Complet : Système Intelligent de Détection de Fraude Bancaire en Temps Réel
 
 **Auteur :** Abdelhak Mirbah  
-**Date :** 29 Décembre 2025  
+**Date :** 31 Décembre 2025  
 **Version :** 1.0.0  
 
 ---
@@ -73,12 +73,14 @@ L'architecture suit le modèle **Microservices Reactive** (Architecture Hexagona
 *   **Database :** PostgreSQL 15
 *   **AI Engine :** DJL (Deep Java Library) & ONNX Runtime
 *   **Build Tool :** Maven
+*   **Port :** 8088 (Configurable)
 
 ### 💻 Frontend
 *   **Framework :** Angular 17 (Standalone Components)
 *   **Styling :** TailwindCSS (Utility-first CSS)
 *   **Charts :** Ngx-Charts (D3.js wrapper for Angular)
 *   **Communication :** RxJS & EventSource (Native SSE)
+*   **Port :** 4201 (Configurable)
 
 ### 🐳 Infrastructure
 *   **Containerization :** Docker & Docker Compose
@@ -109,6 +111,7 @@ L'interface a été entièrement refondue pour offrir une expérience profession
 *   **Donut Chart Temps Réel :** Répartition visuelle des risques, mise à jour à chaque événement entrant.
 *   **Feed de Transactions :** Liste déroulante animée montrant les dernières transactions avec codes couleurs (Rouge/Vert) et icônes contextuelles.
 *   **Simulateur :** Formulaire intégré permettant de tester le système sans outils externes.
+*   **Détails Transaction :** Modal interactif affichant l'intégralité des données (IP, Email, Balances, etc.) via le bouton "View Details".
 
 ### 📜 Historique & Reporting
 *   **Tableau de Données :** Vue tabulaire complète des transactions passées.

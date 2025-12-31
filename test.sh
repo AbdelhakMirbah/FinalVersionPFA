@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # URLs
-API_URL="http://localhost:8081/api/v1/fraud/check"
+API_URL="http://localhost:8088/api/v1/fraud/check"
 
 # Colors
 GREEN='\033[0;32m'
@@ -51,4 +51,4 @@ send_request 5000 0 "Paiement Moyen"
 send_request 20000 1 "Transfert Rapide vers Inconnu"
 
 echo -e "\n${GREEN}=== Simulation Terminée ===${NC}"
-echo "Vérifiez le Dashboard : http://localhost:4200"
+echo "Vérifiez le Dashboard : http://localhost:4201"
