@@ -20,8 +20,8 @@ Le projet contient des scripts automatisés pour faciliter le démarrage.
 ```
 Ce script va :
 1. Lancer les conteneurs Docker (PostgreSQL, Kafka, Zookeeper, Adminer, Kafka UI).
-2. Démarrer le Backend API (Port 8081).
-3. Démarrer le Frontend Angular (Port 4200).
+23. Démarrer le Backend API (Port 8088).
+4. Démarrer le Frontend Angular (Port 4201).
 
 ### 2. Arrêter le système
 ```bash
@@ -35,8 +35,8 @@ Cela arrête proprement les application Java/Node et éteint les conteneurs Dock
 
 | Service | URL | Description |
 |---------|-----|-------------|
-| **Frontend** | [http://localhost:4200](http://localhost:4200) | Tableau de bord Admin (Live Feed, Graphiques, Historique) |
-| **Backend API** | [http://localhost:8081](http://localhost:8081) | API REST Reactive |
+| **Frontend** | [http://localhost:4201](http://localhost:4201) | Tableau de bord Admin (Live Feed, Graphiques, Historique) |
+| **Backend API** | [http://localhost:8088](http://localhost:8088) | API REST Reactive |
 | **Adminer** | [http://localhost:8082](http://localhost:8082) | Interface Web pour PostgreSQL |
 | **Kafka UI** | [http://localhost:8090](http://localhost:8090) | Interface Web pour le cluster Kafka |
 

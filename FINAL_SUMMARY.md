@@ -10,7 +10,13 @@
   - Recompilation du backend avec `./mvnw clean package`
   - Les données sont maintenant correctement sauvegardées avec TOUS les champs
 
-### 2. **Script de Démarrage Amélioré**
+### 3. **Résolution des Conflits de Ports (NOUVEAU)**
+- **Problème**: Conflits fréquents sur les ports standards (8081, 4200).
+- **Solution**: Migration vers des ports dédiés.
+  - Backend: **8088** (au lieu de 8081)
+  - Frontend: **4201** (au lieu de 4200)
+
+## 📊 État Actuel du Projet
 - **Fichier modifié**: `start.sh`
 - **Améliorations**:
   ```bash
@@ -87,8 +93,8 @@ open -a Docker
 ```
 
 ### Vérification
-- Backend API: http://localhost:8081
-- Frontend UI: http://localhost:4200
+- Backend API: http://localhost:8088
+- Frontend UI: http://localhost:4201
 - Adminer (DB): http://localhost:8082
 - Kafka UI: http://localhost:8090
 
@@ -117,10 +123,10 @@ Si vous modifiez le code Java, recompilez avant de redémarrer:
 
 ## 🐛 Dépannage
 
-### Problème: "Port 8081 already in use"
+### Problème: "Port 8088 already in use"
 ```bash
-# Tuer tous les processus sur le port 8081
-kill -9 $(lsof -t -i:8081)
+# Tuer tous les processus sur le port 8088
+kill -9 $(lsof -t -i:8088)
 ./start.sh
 ```
 
@@ -140,7 +146,7 @@ tail -50 backend.log | grep -i "kafka\|error"
 ### Problème: Frontend ne se connecte pas
 ```bash
 # Vérifier que le frontend tourne
-lsof -i :4200
+lsof -i :4201
 
 # Si rien, redémarrer
 cd frontend && npm start > ../frontend.log 2>&1 &
@@ -169,7 +175,7 @@ cd frontend && npm start > ../frontend.log 2>&1 &
 
 ### Démonstration
 1. Lancer `./start.sh` (montrer les health checks)
-2. Ouvrir le dashboard (http://localhost:4200)
+2. Ouvrir le dashboard (http://localhost:4201)
 3. Exécuter `./test.sh` (montrer les transactions arriver en temps réel)
 4. Cliquer sur "View Details" pour montrer les informations complètes
 5. Exporter en CSV pour montrer la traçabilité

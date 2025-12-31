@@ -28,7 +28,7 @@ Open a **third** terminal window and run:
 cd frontend
 npm start
 ```
-*Wait for the compilation to finish, then open `http://localhost:4200` in your browser.*
+*Wait for the compilation to finish, then open `http://localhost:4201` in your browser.*
 
 ---
 
@@ -36,8 +36,8 @@ npm start
 
 | Service | URL / Address | Description |
 | :--- | :--- | :--- |
-| **Angular Dashboard** | `http://localhost:4200` | **(New)** The real-time interactive dashboard. |
-| **Backend API** | `http://localhost:8081` | The main REST API. |
+| **Angular Dashboard** | `http://localhost:4201` | **(New)** The real-time interactive dashboard. |
+| **Backend API** | `http://localhost:8088` | The main REST API. |
 | **Data Viewer** | `viewer.html` | (Legacy) Simple HTML file to view data. |
 | **Kafka UI** | `http://localhost:8090` | Web interface to monitor Kafka topics and consumers. |
 | **Adminer (DB)** | `http://localhost:8082` | Web interface to manage the PostgreSQL database. |
@@ -59,7 +59,7 @@ chmod +x test_api.sh
 ### B. Manual API Check (Curl)
 You can manually send a transaction to check for fraud:
 ```bash
-curl -X POST http://localhost:8081/api/v1/fraud/check \
+curl -X POST http://localhost:8088/api/v1/fraud/check \
   -H "Content-Type: application/json" \
   -d '{
     "amount": 500000.0,
