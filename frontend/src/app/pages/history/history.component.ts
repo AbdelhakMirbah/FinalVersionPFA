@@ -28,7 +28,7 @@ export class HistoryComponent implements OnInit {
     // To be closer to "admin", we should ideally fetch ALL. 
     // But currently backend only exposes top 50 via GET /api/v1/records
     // Let's stick with that for now.
-    this.http.get<FraudCheck[]>('http://localhost:8081/api/v1/records').subscribe({
+    this.http.get<FraudCheck[]>('http://localhost:8088/api/v1/records').subscribe({
       next: (data) => {
         this.records = data;
         this.filteredRecords = data;

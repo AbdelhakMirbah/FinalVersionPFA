@@ -47,7 +47,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   loadExistingRecords() {
-    this.http.get<FraudCheck[]>('http://localhost:8081/api/v1/records').subscribe({
+    this.http.get<FraudCheck[]>('http://localhost:8088/api/v1/records').subscribe({
       next: (data) => {
         console.log("Loaded existing records:", data.length);
         this.fraudChecks = data;

@@ -19,7 +19,7 @@ else
 fi
 
 # Tuer tout processus sur le port 4200 au cas où
-lsof -ti:4200 | xargs kill -9 2>/dev/null
+lsof -ti:4201 | xargs kill -9 2>/dev/null
 
 # 2. Arrêt du Backend
 if [ -f backend.pid ]; then
@@ -33,7 +33,7 @@ else
 fi
 
 # Tuer tout processus sur le port 8081 au cas où
-lsof -ti:8081 | xargs kill -9 2>/dev/null
+lsof -ti:8088 | xargs kill -9 2>/dev/null
 
 # 3. Arrêt des Conteneurs Docker
 echo -e "\nArrêt de l'infrastructure Docker..."

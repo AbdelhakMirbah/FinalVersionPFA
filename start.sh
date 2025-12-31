@@ -10,12 +10,8 @@ echo -e "${BLUE}=== Démarrage du Système de Détection de Fraude ===${NC}"
 
 # 1. Vérification et démarrage des conteneurs Docker
 echo -e "\n${BLUE}[1/3] Vérification de l'infrastructure Docker...${NC}"
-if [ "$(docker ps -q -f name=postgres)" ]; then
-    echo -e "${GREEN}✅ PostgreSQL est en ligne.${NC}"
-else
-    echo -e "${BLUE}🚀 Démarrage de Docker Compose...${NC}"
-    docker-compose up -d
-fi
+echo -e "${BLUE}🚀 Vérification/Démarrage de Docker Compose...${NC}"
+docker-compose up -d postgres kafka zookeeper adminer kafka-ui
 
 # Attendre que Kafka soit healthy (critique pour éviter les erreurs de connexion)
 echo -e "${BLUE}⏳ Attente de la disponibilité de Kafka...${NC}"
@@ -54,13 +50,13 @@ echo -e "${GREEN}✅ Backend lancé en arrière-plan (PID: $BACKEND_PID). Logs: 
 echo -e "\n${BLUE}[3/3] Démarrage du Frontend (Angular)...${NC}"
 cd frontend
 npm install > /dev/null 2>&1 # Installation silencieuse des dépendances si nécessaire
-npm start > ../frontend.log 2>&1 &
+npm start -- --port 4201 > ../frontend.log 2>&1 &
 FRONTEND_PID=$!
 echo -e "${GREEN}✅ Frontend lancé en arrière-plan (PID: $FRONTEND_PID). Logs: frontend.log${NC}"
 
 echo -e "\n${GREEN}=== SYSTÈME DÉMARRÉ ===${NC}"
-echo -e "Backend API : http://localhost:8081"
-echo -e "Frontend UI : http://localhost:4200"
+echo -e "Backend API : http://localhost:8088"
+echo -e "Frontend UI : http://localhost:4201"
 echo -e "Admin DB    : http://localhost:8082"
 echo -e "Kafka UI    : http://localhost:8090"
 echo -e "\n${BLUE}Pour arrêter le système, utilisez : ./stop.sh${NC}"

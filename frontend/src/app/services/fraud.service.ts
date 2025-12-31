@@ -8,7 +8,7 @@ import { HttpClient } from '@angular/common/http';
 })
 export class FraudService {
 
-    private apiUrl = 'http://localhost:8081/api/v1';
+    private apiUrl = 'http://localhost:8088/api/v1';
 
     constructor(private _zone: NgZone, private http: HttpClient) { }
 
